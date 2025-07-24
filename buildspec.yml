@@ -1,0 +1,29 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Checking tools..."
+      - aws --version
+      - docker --version
+      - echo "Tools checked"
+
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 080231293217.dkr.ecr.us-east-1.amazonaws.com
+
+  build:
+    commands:
+      - echo Build started on `date`
+      - docker build -t static-website .
+      - docker tag static-website:latest 080231293217.dkr.ecr.us-east-1.amazonaws.com/static-website:latest
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - docker push 080231293217.dkr.ecr.us-east-1.amazonaws.com/static-website:latest
+
+artifacts:
+  files:
+    - '**/*'
